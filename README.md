@@ -164,6 +164,18 @@ mars_table_df.dtypes
        #Save as DataFrame
        mars_months_df = pd.read_json(json_mars_temp)
        mars_months_df
+       
+       # Identify the coldest and hottest months in Curiosity's location
+       #Coldest Month
+       min_avg_temp = mars_months_df['average_min_temp'].min()
+       month_min_temp = mars_months_df.loc[mars_months_df['average_min_temp'] == min_avg_temp]
+       print(month_min_temp.to_string(index=False))
+       #month_min_temp
+       
+       #Warmest Month
+       max_avg_temp = mars_months_df['average_min_temp'].max()
+       month_max_temp = mars_months_df.loc[mars_months_df['average_min_temp'] == max_avg_temp]
+       print(month_max_temp.to_string(index=False))
        ```
        
       * Plot the results as a bar chart. 
@@ -182,14 +194,100 @@ mars_table_df.dtypes
 
   * Which months have the lowest and the highest atmospheric pressure on Mars? To answer this question:
      * Find the average daily atmospheric pressure of all the months.
+       ```ruby
+       # Average pressure by Martian month
+       average_pressure = []
+
+       for i in range(1, months_on_mars+1):
+           pressure_per_month = {'month_number': "", "pressure": ""}
+           avg_pressure_month = mars_table_df.loc[mars_table_df['month'] == i]['pressure'].mean()
+           round_pressure = round(avg_pressure_month, 2)
+           pressure_per_month["month_number"] = i 
+           pressure_per_month["pressure"] = round_pressure
+           average_pressure.append(pressure_per_month)
+    
+       print(average_pressure)
+       
+       #Month with lowest pressure
+       min_pressure = mars_monthly_pressure_df['pressure'].min()
+       month_min_pressure = mars_monthly_pressure_df.loc[mars_monthly_pressure_df['pressure'] == min_pressure]
+       print(month_min_pressure.to_string(index=False))
+       
+       #Month with highest pressure
+       max_pressure = mars_monthly_pressure_df['pressure'].max()
+       month_max_pressure = mars_monthly_pressure_df.loc[mars_monthly_pressure_df['pressure'] == max_pressure]
+       print(month_max_pressure.to_string(index=False))
+       
      * Plot the results as a bar chart.
+       ```ruby
+       #Export list to JSON file
+       json_mars_pressure = json.dumps(average_pressure)
+       #Save as DataFrame
+       mars_monthly_pressure_df = pd.read_json(json_mars_pressure)
+       mars_monthly_pressure_df
+       
+       # Plot the average pressure by month
+       plt.bar(mars_monthly_pressure_df["month_number"], mars_monthly_pressure_df["pressure"], color= 'indianred')
+
+       #Create labels for the x and y axis
+       plt.xlabel("Mars Month Number")
+       plt.ylabel("Average Atmospheric Pressure")
+
+       #Create Title
+       plt.title("Average Atmospheric Pressure on Mars by Month")
+       ```
+       ![image](https://user-images.githubusercontent.com/115905663/225120410-41f25ca9-79d4-4cc3-bc3e-85320c30adc6.png)
+
   
   * About how many terrestrial (Earth) days exist in a Martian year? To answer this question:
      * Consider how many days elapse on Earth in the time that Mars circles the Sun once. 
+       ```ruby
+       #How many terrestrial (earth) days are there in a Martian year?
+       #one way is to use the column 'ls', which is the position of the sun
+       #Find the starting position of the sun from the first data row
+       first_ls = mars_table_df['ls'].loc[0]
+       first_ls
+     
+       mars_table_df.loc[mars_table_df['terrestrial_date'].argmin()]
+     
+       #Find other rows that have 155 as the 'ls' value because that means the sun returned to
+       #the same position which would mean Mars traveled around the sun 1 time which equals 1 year
+       same_ls = mars_table_df.loc[(mars_table_df['ls'] == first_ls)] 
+       same_ls
+     
+       #subtract the terrestrial date column to see how many earth days passed 
+       x = same_ls['terrestrial_date'].loc[0]
+       date_on_earth = same_ls['terrestrial_date'].iloc[2]
+       days_that_passed = date_on_earth - x
+       print(f"In one Martian year, nearly {days_that_passed} pass on Earth.")
+       ```
      * Visually esitmate the result by plotting the daily minimum temperature. 
+       ```ruby
+       #Visually estimate these results by plotting the daily minimum temperature
+       plt.bar(mars_table_df['sol'], mars_table_df['min_temp'], color = 'gold')
+
+       #Create labels for the graph
+       plt.xlabel("Martian Days")
+       plt.ylabel("Minimum Temperature (C)")
+
+       #Create title
+       plt.title("Daily Minimum Temperature")
+       ```
+       ![image](https://user-images.githubusercontent.com/115905663/225121353-7c18a176-61d3-4e2a-9d62-10bb740cdad3.png)
 
 6. Export the DataFrame to a CSV file.
+```ruby
+# Write the data to a CSV
+mars_table_df.to_csv('mars_table.csv', index= False)
 
+browser.quit()
+```
+## Findings
 
+*  On average, the third and fourth months have the coldest average minimum temperature of -83 degrees Celsius (-117.4 degrees Fahrenheit). The warmest average minimum temperature occurs in the seventh month (-68 degrees Celsius, or -90.4 degrees Fahrenheit). Even the warmest month on Mars is not capable of supporting human life. It is important to note that this is based on the location of the Curiosity rover.
+According to [NASA's Solar System Exploration](https://solarsystem.nasa.gov/planets/mars/in-depth/) website, Mars has a thin atmosphere which allows heat from the Sun to escape easily.
+*  Atmospheric pressure is, on average, lowest in the sixth month and highest in the ninth. While both Earth and Mars' atmospheric pressure varies with altitude, Mars' atmospheric pressure also varies by season. Information from [Mars Education at Arizona State University](https://marsed.asu.edu/mep/atmosphere) website also mentions that this pressure change is due to the change in amount of CO2 gas in the atmosphere on Mars.
+* Information found online, specifically [NASA's Mars Exploration](https://mars.nasa.gov/all-about-mars/facts/) website, informed me that a year on Mars is 687 Earth days. I considered how a year is measured (one revolution around the sun ) and decided to use the 'ls' column (solar longitude) to calculate how many Earth days are in one Martian year. I used this column because the position of the sun would return to the same longitude after on revolution. The first row solar longitude value was 155, and 4 other rows contained this value as well. I then subtracted the 'terrestrial_date' of row 1 (2012-08-16) from row 3 (2014-07-04) and got a result of 687 days.
+The bar graph created using the minimum temperature of a single Martian day (min_temp) and Martian days (sol) shows temperature peaks at about 120 days and 800 days. 800-120 = 680 days, so this also matches up with the facts I found on the internet. 
 
 
