@@ -77,6 +77,8 @@ browser.quit()
 
 [Mars Weather Notebook](https://github.com/marthagriggs9/mars_scraper/blob/main/part_2_mars_weather-checkpoint.ipynb)
 
+[Mars Weather Data Table](https://github.com/marthagriggs9/mars_scraper/blob/main/mars_table.csv)
+
 1. Use automated browsing to visit the [Mars Temperature Data Site](https://static.bc-edx.com/data/web/mars_facts/temperature.html). Inspect the page to identify which elements to scrape. Not that the URL is `https://static.bc-edx.com/data/web/mars_facts/temperature.html`.
 ```ruby
 # Visit the website
